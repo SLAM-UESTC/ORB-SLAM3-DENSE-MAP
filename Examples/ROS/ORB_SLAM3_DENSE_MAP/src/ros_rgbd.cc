@@ -27,6 +27,7 @@
 #include <message_filters/subscriber.h>
 #include <message_filters/time_synchronizer.h>
 #include <message_filters/sync_policies/approximate_time.h>
+#include <pcl_conversions/pcl_conversions.h>
 
 #include<opencv2/core/core.hpp>
 #include "System.h" //leslie add
@@ -70,7 +71,42 @@ int main(int argc, char **argv)
     message_filters::Synchronizer<sync_pol> sync(sync_pol(10), rgb_sub,depth_sub);
     sync.registerCallback(boost::bind(&ImageGrabber::GrabRGBD,&igb,_1,_2));
 
+
+    // zs OCTOMAP添加
+ 
+    pcl::PointCloud<pcl::PointXYZRGBA>::Ptr global_map(new pcl::PointCloud<pcl::PointXYZRGBA>);
+    global_map = SLAM.getGlobalMap();
+ 
+    pcl::PointCloud<pcl::PointXYZRGB>::Ptr global_map_copy(new pcl::PointCloud<pcl::PointXYZRGB>);
+    //数据格式转换
+    cout<<"-----------------------------------------------------------"<<endl;
+    cout <<"ros is running "<<endl;
+    while (ros::ok())
+    {
+ 
+        pcl::copyPointCloud(*global_map, *global_map_copy);
+ 
+        ros::Publisher pcl_pub = nh.advertise<sensor_msgs::PointCloud2> ("/point_cloud/output", 10);
+ 
+        sensor_msgs::PointCloud2 output;
+ 
+        pcl::toROSMsg(*global_map_copy,output);// 转换成ROS下的数据类型 最终通过topic发布
+ 
+        output.header.stamp=ros::Time::now();
+        output.header.frame_id  ="camera_rgb_frame";
+        //output.header.frame_id  ="map";
+ 
+        ros::Rate loop_rate(10);
+ 
+        pcl_pub.publish(output);
+        ros::spinOnce();
+        loop_rate.sleep();
+    }
+    // zs end
+
     ros::spin();
+
+    SLAM.save();
 
     // Stop all threads
     SLAM.Shutdown();

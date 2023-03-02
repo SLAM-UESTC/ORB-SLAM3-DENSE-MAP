@@ -828,6 +828,14 @@ void System::save()
     mpPointCloudMapping->save();
 }
 
+
+// zs
+pcl::PointCloud<pcl::PointXYZRGBA>::Ptr System::getGlobalMap(){
+    return mpPointCloudMapping->getGlobalMap();
+}
+
+// zs end
+
 #ifdef REGISTER_TIMES
 void System::InsertRectTime(double& time)
 {

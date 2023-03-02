@@ -208,6 +208,12 @@ void PointCloudMapping::save()
     pcl::io::savePCDFile("result.pcd", *globalMap);
     cout << endl << "globalMap save finished" << endl;
 }
+
+pcl::PointCloud<pcl::PointXYZRGBA>::Ptr PointCloudMapping::getGlobalMap(){
+    return this->globalMap;
+}
+
+
 void PointCloudMapping::updatecloud(Map &curMap)
 {
     std::unique_lock<std::mutex> lck(updateMutex);

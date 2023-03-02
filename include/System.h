@@ -187,6 +187,9 @@ public:
 
     void ChangeDataset();
     void save();
+    // zs
+    pcl::PointCloud<pcl::PointXYZRGBA>::Ptr getGlobalMap();
+    // zs end
 
 #ifdef REGISTER_TIMES
     void InsertRectTime(double& time);
